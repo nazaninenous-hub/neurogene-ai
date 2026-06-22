@@ -992,12 +992,41 @@ function renderAgentResponse(data) {
       </div>`;
   }
 
+  // Literature grounding section
+  let litHtml = '';
+  const lit = data.literature;
+  if (lit && (lit.literature_context || lit.papers?.length > 0)) {
+    const papers = lit.papers || [];
+    const papersHtml = papers.length > 0 ? `
+      <div class="papers-list">
+        ${papers.map((p,i) => `
+          <div class="paper-card">
+            <div class="paper-title">${escHtml(p.title)}</div>
+            <div class="paper-meta">${escHtml(p.authors)}${p.year ? ' · ' + p.year : ''}${p.pmid ? ' · PMID ' + p.pmid : ''}</div>
+            <div class="paper-abstract">${escHtml(p.abstract ? p.abstract.slice(0,200) + (p.abstract.length > 200 ? '…' : '') : '')}</div>
+            ${p.url ? `<a class="paper-link" href="${p.url}" target="_blank">View on PubMed →</a>` : ''}
+          </div>`).join('')}
+      </div>` : '';
+
+    litHtml = `
+      <div class="lit-section">
+        <div class="lit-header">
+          <span class="lit-badge">Literature</span>
+          <span class="lit-title">Context from published research</span>
+        </div>
+        ${lit.literature_context ? `<div class="lit-context">${formatReply(lit.literature_context)}</div>` : ''}
+        ${papers.length > 0 ? `
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">${papers.length} relevant paper${papers.length!==1?'s':''} retrieved</div>
+          ${papersHtml}` : ''}
+      </div>`;
+  }
+
   wrap.innerHTML = `
     <div class="msg-avatar">NG</div>
     <div class="msg-body" style="max-width:720px;width:100%">
       <div class="msg-role">NeuroGene AI</div>
       <div class="msg-bubble" style="background:transparent;border:none;box-shadow:none;padding:0;max-width:100%">
-        ${infoBanner}${figsHtml}${interpHtml}${detailsHtml}
+        ${infoBanner}${figsHtml}${interpHtml}${litHtml}${detailsHtml}
       </div>
     </div>`;
 

@@ -249,6 +249,254 @@ def execute_code(code: str, file_content: bytes, filename: str) -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════
+#  LITERATURE SEARCH — PubMed + Semantic Scholar
+# ══════════════════════════════════════════════════════════════════════
+
+import urllib.request
+import urllib.parse
+import urllib.error
+
+def search_pubmed(query: str, max_results: int = 5) -> list:
+    """Search PubMed and return list of paper dicts with title, abstract, authors, year, pmid."""
+    try:
+        # Step 1: search for IDs
+        search_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+        params = urllib.parse.urlencode({
+            "db": "pubmed", "term": query, "retmax": max_results,
+            "retmode": "json", "sort": "relevance"
+        })
+        req = urllib.request.Request(f"{search_url}?{params}",
+                                     headers={"User-Agent": "NeuroGene/2.0"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = json.loads(r.read())
+        ids = data.get("esearchresult", {}).get("idlist", [])
+        if not ids:
+            return []
+
+        # Step 2: fetch abstracts for those IDs
+        fetch_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+        params = urllib.parse.urlencode({
+            "db": "pubmed", "id": ",".join(ids),
+            "rettype": "abstract", "retmode": "json"
+        })
+        req = urllib.request.Request(f"{fetch_url}?{params}",
+                                     headers={"User-Agent": "NeuroGene/2.0"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            fetch_data = json.loads(r.read())
+
+        articles = fetch_data.get("PubmedArticleSet", {}).get("PubmedArticle", [])
+        if isinstance(articles, dict):
+            articles = [articles]
+
+        papers = []
+        for art in articles:
+            try:
+                med = art["MedlineCitation"]
+                article = med["Article"]
+                title = article.get("ArticleTitle", "")
+                if isinstance(title, dict):
+                    title = title.get("#text", str(title))
+
+                # Abstract
+                abstract_obj = article.get("Abstract", {})
+                abstract_text = abstract_obj.get("AbstractText", "")
+                if isinstance(abstract_text, list):
+                    abstract_text = " ".join([
+                        (a.get("#text", str(a)) if isinstance(a, dict) else str(a))
+                        for a in abstract_text
+                    ])
+                elif isinstance(abstract_text, dict):
+                    abstract_text = abstract_text.get("#text", str(abstract_text))
+
+                # Authors
+                author_list = article.get("AuthorList", {}).get("Author", [])
+                if isinstance(author_list, dict):
+                    author_list = [author_list]
+                authors = []
+                for a in author_list[:3]:
+                    ln = a.get("LastName", "")
+                    fn = a.get("ForeName", "")
+                    if ln:
+                        authors.append(f"{ln} {fn[0]}." if fn else ln)
+                author_str = ", ".join(authors) + (" et al." if len(author_list) > 3 else "")
+
+                # Year
+                pub_date = article.get("Journal", {}).get("JournalIssue", {}).get("PubDate", {})
+                year = pub_date.get("Year", pub_date.get("MedlineDate", "")[:4])
+
+                pmid = str(med.get("PMID", {}).get("#text", "") or med.get("PMID", ""))
+
+                if title and abstract_text:
+                    papers.append({
+                        "title": str(title),
+                        "abstract": str(abstract_text)[:800],
+                        "authors": author_str,
+                        "year": str(year),
+                        "pmid": pmid,
+                        "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else ""
+                    })
+            except Exception:
+                continue
+
+        return papers
+
+    except Exception as e:
+        print(f"PubMed search error: {e}")
+        return []
+
+
+def search_semantic_scholar(query: str, max_results: int = 5) -> list:
+    """Search Semantic Scholar as fallback."""
+    try:
+        params = urllib.parse.urlencode({
+            "query": query, "limit": max_results,
+            "fields": "title,abstract,authors,year,externalIds"
+        })
+        url = f"https://api.semanticscholar.org/graph/v1/paper/search?{params}"
+        req = urllib.request.Request(url, headers={"User-Agent": "NeuroGene/2.0"})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            data = json.loads(r.read())
+
+        papers = []
+        for p in data.get("data", []):
+            abstract = p.get("abstract") or ""
+            title = p.get("title") or ""
+            if not title or not abstract:
+                continue
+            authors = [a.get("name","") for a in p.get("authors", [])[:3]]
+            author_str = ", ".join(authors) + (" et al." if len(p.get("authors",[])) > 3 else "")
+            pmid = p.get("externalIds", {}).get("PubMed", "")
+            papers.append({
+                "title": title,
+                "abstract": abstract[:800],
+                "authors": author_str,
+                "year": str(p.get("year", "")),
+                "pmid": pmid,
+                "url": f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else
+                       f"https://api.semanticscholar.org/graph/v1/paper/{p.get('paperId','')}"
+            })
+        return papers
+    except Exception as e:
+        print(f"Semantic Scholar error: {e}")
+        return []
+
+
+def extract_search_terms(interpretation: str, file_format: str) -> list:
+    """Ask Claude to extract 2-3 good PubMed search queries from the findings."""
+    if not ANTHROPIC_CLIENT:
+        return []
+    try:
+        resp = ANTHROPIC_CLIENT.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=300,
+            messages=[{
+                "role": "user",
+                "content": f"""Based on these scientific findings from a {file_format} data analysis, 
+generate exactly 3 concise PubMed search queries (3-6 words each) that would find the most relevant literature.
+
+Findings:
+{interpretation[:1000]}
+
+Return ONLY a JSON array of 3 strings, nothing else. Example: ["query one", "query two", "query three"]"""
+            }]
+        )
+        text = resp.content[0].text.strip()
+        # Extract JSON array
+        import re as _re
+        match = _re.search(r'\[.*?\]', text, _re.DOTALL)
+        if match:
+            queries = json.loads(match.group())
+            return [q for q in queries if isinstance(q, str)][:3]
+    except Exception as e:
+        print(f"Search term extraction error: {e}")
+    return []
+
+
+def run_literature_grounding(interpretation: str, file_format: str) -> dict:
+    """
+    Full literature pipeline:
+    1. Extract search terms from findings
+    2. Search PubMed + Semantic Scholar
+    3. Claude compares findings to literature
+    Returns dict with papers and literature_context text.
+    """
+    if not ANTHROPIC_CLIENT:
+        return {"papers": [], "literature_context": ""}
+
+    # Step 1: extract search queries
+    queries = extract_search_terms(interpretation, file_format)
+    if not queries:
+        # fallback generic queries based on format
+        format_queries = {
+            "nifti": ["MRI brain morphometry machine learning", "structural MRI biomarkers"],
+            "edf": ["EEG biomarkers classification", "EEG band power brain disorders"],
+            "hdf5": ["brain imaging data analysis", "neural data machine learning"],
+            "fastq": ["genomic sequencing analysis", "DNA sequence features"],
+            "vcf": ["variant pathogenicity prediction", "genetic variant classification"],
+            "csv": ["neuroimaging features classification", "brain biomarkers"],
+        }
+        queries = format_queries.get(file_format, ["neuroscience data analysis machine learning"])
+
+    # Step 2: search for papers
+    all_papers = []
+    seen_titles = set()
+    for query in queries:
+        papers = search_pubmed(query, max_results=3)
+        if not papers:
+            papers = search_semantic_scholar(query, max_results=3)
+        for p in papers:
+            if p["title"] not in seen_titles:
+                seen_titles.add(p["title"])
+                all_papers.append(p)
+        if len(all_papers) >= 8:
+            break
+
+    all_papers = all_papers[:6]  # cap at 6 papers
+
+    if not all_papers:
+        return {"papers": [], "literature_context": "No relevant literature found for this analysis."}
+
+    # Step 3: Claude compares findings to literature
+    papers_text = "\n\n".join([
+        f"Paper {i+1}: {p['authors']} ({p['year']})\nTitle: {p['title']}\nAbstract: {p['abstract']}"
+        for i, p in enumerate(all_papers)
+    ])
+
+    try:
+        resp = ANTHROPIC_CLIENT.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=1000,
+            messages=[{
+                "role": "user",
+                "content": f"""You are a scientific reviewer. Compare the following analysis findings against the retrieved literature.
+
+ANALYSIS FINDINGS:
+{interpretation[:1500]}
+
+RETRIEVED PAPERS:
+{papers_text}
+
+Write a concise Literature Context section (3-4 paragraphs) that:
+1. Identifies which findings replicate or are consistent with existing literature (cite specific papers by author and year)
+2. Identifies any findings that contradict or diverge from the literature
+3. Flags anything that appears novel or under-reported
+4. Suggests 1-2 follow-up studies or analyses based on the gaps you see
+
+Write in plain scientific prose. No code. No bullet points — paragraphs only. Be specific."""
+            }]
+        )
+        literature_context = resp.content[0].text.strip()
+    except Exception as e:
+        literature_context = f"Literature comparison unavailable: {e}"
+
+    return {
+        "papers": all_papers,
+        "literature_context": literature_context,
+        "queries_used": queries
+    }
+
+
+# ══════════════════════════════════════════════════════════════════════
 #  AGENTIC ANALYSIS — Claude reasons + executes
 # ══════════════════════════════════════════════════════════════════════
 
@@ -384,12 +632,16 @@ Result variable: {json.dumps(exec_result['result'], default=str)[:1000] if exec_
     clean_interp = _re.sub(r'`[^`\n]{1,200}`', lambda m: m.group().replace('`',''), clean_interp)  # inline code — keep text, remove backticks
     clean_interp = clean_interp.strip()
 
+    # Run literature grounding pipeline
+    lit = run_literature_grounding(clean_interp, file_info.get("format", "unknown"))
+
     return {
         "steps": steps,
         "interpretation": clean_interp,
         "figures": all_figures,
         "code_outputs": all_code_outputs,
         "messages": messages,
+        "literature": lit,
     }
 
 
