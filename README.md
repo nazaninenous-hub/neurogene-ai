@@ -127,6 +127,4 @@ neurogene-repo/
 └── README.md
 ```
 
----
 
-Built by Nazanin — neuroscience researcher & developer.
