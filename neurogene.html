@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeuroGene</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #F7F6F3;
+  --white:      #FFFFFF;
+  --subtle:     #F1F0ED;
+  --hover:      #ECEAE6;
+  --border:     #E2E0DA;
+  --border-mid: #C8C6BF;
+  --ink:        #1A1917;
+  --ink-2:      #6A675F;
+  --ink-3:      #A8A59D;
+  --blue:       #2B5CE6;
+  --blue-light: #EEF2FD;
+  --blue-mid:   #C3D0F8;
+  --green:      #1A7F4B;
+  --green-light:#EAF5EF;
+  --amber:      #92600A;
+  --amber-light:#FDF3E3;
+  --red:        #C0392B;
+  --red-light:  #FDECEA;
+  --r:          6px;
+  --r-lg:       12px;
+  --display:    'Cormorant Garamond', Georgia, serif;
+  --body:       'Inter', system-ui, sans-serif;
+  --mono:       'JetBrains Mono', 'Fira Code', monospace;
+  --shadow:     0 1px 4px rgba(0,0,0,0.07);
+  --shadow-lg:  0 4px 16px rgba(0,0,0,0.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; }
+
+/* ── Header ── */
+.header {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.logo { font-family: var(--display); font-size: 22px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; }
+.logo em { font-style: italic; color: var(--blue); }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.backend-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 10px;
+  background: var(--subtle);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); flex-shrink: 0; transition: background 0.2s; }
+.dot.on { background: var(--green); }
+.key-btn {
+  font-family: var(--body); font-size: 12px; font-weight: 500;
+  padding: 5px 12px; border-radius: var(--r);
+  background: var(--blue); color: #fff;
+  border: none; cursor: pointer; transition: opacity 0.15s;
+}
+.key-btn:hover { opacity: 0.85; }
+
+/* ── Layout ── */
+.body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Left panel — file + config ── */
+.left-panel {
+  width: 300px;
+  flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 20px 16px;
+  gap: 16px;
+}
+
+.panel-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 8px;
+}
+
+/* ── Drop zone ── */
+.drop-zone {
+  border: 1.5px dashed var(--border-mid);
+  border-radius: var(--r-lg);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.drop-zone:hover, .drop-zone.over { border-color: var(--blue); background: var(--blue-light); }
+.drop-icon { font-size: 28px; margin-bottom: 8px; }
+.drop-title { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.drop-sub { font-size: 11.5px; color: var(--ink-3); line-height: 1.5; }
+.drop-formats { margin-top: 10px; display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+.fmt { font-size: 10px; font-family: var(--mono); padding: 2px 6px; background: var(--subtle); border: 1px solid var(--border); border-radius: 4px; color: var(--ink-3); }
+
+.file-loaded {
+  display: none;
+  padding: 10px 12px;
+  background: var(--green-light);
+  border: 1px solid #A8DFC0;
+  border-radius: var(--r);
+  font-size: 12px;
+}
+.file-loaded strong { color: var(--green); display: block; margin-bottom: 2px; }
+.file-loaded span { color: var(--ink-2); }
+
+/* ── Examples ── */
+.examples { display: flex; flex-direction: column; gap: 6px; }
+.example-btn {
+  text-align: left; width: 100%; padding: 8px 10px;
+  background: var(--subtle); border: 1px solid var(--border);
+  border-radius: var(--r); font-family: var(--body); font-size: 12px;
+  color: var(--ink-2); cursor: pointer; transition: all 0.12s;
+  line-height: 1.4;
+}
+.example-btn:hover { background: var(--hover); color: var(--ink); border-color: var(--border-mid); }
+.example-btn strong { display: block; font-size: 11.5px; font-weight: 500; color: var(--ink); margin-bottom: 1px; }
+
+/* ── Analysis options ── */
+.options { display: flex; flex-direction: column; gap: 8px; }
+.opt-row { display: flex; flex-direction: column; gap: 4px; }
+.opt-label { font-size: 11.5px; font-weight: 500; color: var(--ink-2); }
+input[type=text], input[type=number], input[type=password], select, textarea {
+  font-family: var(--body); font-size: 13px; color: var(--ink);
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 7px 10px; width: 100%; outline: none;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue); box-shadow: 0 0 0 3px rgba(43,92,230,0.1);
+}
+.run-btn {
+  width: 100%; padding: 10px; border-radius: var(--r);
+  background: var(--blue); color: #fff; border: none;
+  font-family: var(--body); font-size: 13.5px; font-weight: 500;
+  cursor: pointer; transition: opacity 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.run-btn:hover:not(:disabled) { opacity: 0.88; }
+.run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Chat area ── */
+.chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.messages {
+  flex: 1; overflow-y: auto; padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 20px;
+}
+
+/* ── Message bubbles ── */
+.msg { display: flex; gap: 12px; max-width: 820px; }
+.msg.user { flex-direction: row-reverse; align-self: flex-end; }
+
+.msg-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; flex-shrink: 0;
+  margin-top: 2px;
+}
+.msg.agent .msg-avatar { background: var(--blue-light); color: var(--blue); }
+.msg.user .msg-avatar { background: var(--subtle); color: var(--ink-2); }
+
+.msg-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.msg-role { font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.msg.user .msg-role { text-align: right; }
+
+.msg-bubble {
+  padding: 12px 16px;
+  border-radius: var(--r-lg);
+  font-size: 13.5px;
+  line-height: 1.7;
+  max-width: 680px;
+}
+.msg.agent .msg-bubble {
+  background: var(--white);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+.msg.user .msg-bubble {
+  background: var(--blue);
+  color: #fff;
+  border-radius: var(--r-lg) var(--r-lg) 4px var(--r-lg);
+}
+
+/* ── Agent thinking / steps ── */
+.thinking-indicator {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  background: var(--subtle); border: 1px solid var(--border);
+  border-radius: var(--r); font-size: 12.5px; color: var(--ink-2);
+}
+.thinking-dots span {
+  display: inline-block; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--blue); margin: 0 2px;
+  animation: bounce 1.2s ease infinite;
+}
+.thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+.step-block {
+  background: var(--subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  font-size: 12.5px;
+}
+.step-header {
+  padding: 8px 12px;
+  display: flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  background: var(--subtle);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.step-header:hover { background: var(--hover); }
+.step-tag {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 2px 7px; border-radius: 4px;
+}
+.step-tag.code { background: #E8F0FE; color: #1A3A8A; }
+.step-tag.output { background: var(--green-light); color: var(--green); }
+.step-chevron { margin-left: auto; color: var(--ink-3); font-size: 11px; transition: transform 0.2s; }
+.step-content {
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  color: var(--ink-2);
+  max-height: 320px;
+  overflow-y: auto;
+  display: none;
+}
+.step-content.open { display: block; }
+
+/* ── Figures ── */
+.figures-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.fig-img {
+  max-width: 100%; border-radius: var(--r);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  cursor: zoom-in;
+}
+
+/* ── Interpretation ── */
+.interp-block {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 40px; gap: 12px;
+  color: var(--ink-3);
+}
+.empty-title { font-family: var(--display); font-size: 28px; font-weight: 500; color: var(--ink-2); }
+.empty-sub { font-size: 13.5px; max-width: 360px; line-height: 1.65; }
+
+/* ── Chat input ── */
+.chat-input-row {
+  padding: 14px 20px;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.chat-input-wrap { flex: 1; position: relative; }
+.chat-input {
+  width: 100%; min-height: 42px; max-height: 140px;
+  resize: none; padding: 10px 14px;
+  font-family: var(--body); font-size: 13.5px;
+  background: var(--subtle); border: 1px solid var(--border);
+  border-radius: 21px; outline: none; line-height: 1.5;
+  transition: border-color 0.14s, box-shadow 0.14s;
+  overflow-y: auto;
+}
+.chat-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(43,92,230,0.1); background: var(--white); }
+.send-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--blue); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: opacity 0.15s;
+}
+.send-btn:hover { opacity: 0.85; }
+.send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.send-btn svg { fill: white; width: 16px; height: 16px; }
+
+/* ── Key modal ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; display: none;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: var(--r-lg);
+  padding: 28px; width: 420px; box-shadow: var(--shadow-lg);
+}
+.modal h2 { font-family: var(--display); font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+.modal p { font-size: 13px; color: var(--ink-2); margin-bottom: 16px; line-height: 1.6; }
+.modal-btns { display: flex; gap: 8px; margin-top: 16px; }
+.btn { padding: 8px 18px; border-radius: var(--r); font-size: 13px; font-weight: 500; font-family: var(--body); cursor: pointer; border: 1px solid transparent; transition: all 0.13s; }
+.btn-primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.btn-primary:hover { opacity: 0.88; }
+.btn-ghost { background: transparent; color: var(--ink-2); border-color: var(--border); }
+.btn-ghost:hover { background: var(--hover); }
+
+/* ── Image zoom overlay ── */
+.zoom-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  display: none; align-items: center; justify-content: center;
+  z-index: 200; cursor: zoom-out;
+}
+.zoom-overlay.open { display: flex; }
+.zoom-overlay img { max-width: 90vw; max-height: 90vh; border-radius: var(--r); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.65s linear infinite; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header class="header">
+  <div class="logo" style="display:flex;align-items:center;gap:9px"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAWCAYAAADTlvzyAAAEmklEQVR42u1VXYhVVRT+1t7n/5x7zrn33P9xnJnUmXEcTRJJxBoDIfMhKThWBBGCPUiREETQw3VeDOwliIgkCXoJ7kQvFVFkjvk2FGXlVI5mjJY2js3MvTo/955zVg/jmMpYRj9PfbAf9t5r86219lrrI/wVVCoiHF5FCOe3PcdD7u8HA8T4Z8AEgBCGEgDdzKrKLKvMEmACX1k3gbLoaRhKDFSTq54PDMQEYO3Ol8vCbStS0GGkC0umW/Pa2MEv9p8novjq2wUqZqoCYse1d4t7XRFAfwIAPWElozYmk7MjJ7Zphe4nzXLnarPc5VjlFfAyLgJPXC7k9dGONnWos4y3twEf7XjluNa+dhW9uInq87xMRL+nnBYjK61/9AGY/tPC8ldJy0kQc56MFDQvB6O4nN2WNrQWVSplFdhGjPpEHedHxzEyOveDTLWY2YJFpYJ+qpiKDuzb4L1ZYRb9RMn1hGEoMTAQB93bnkMq94JqpyEtF4rtQ7HSiWJ7LE1bSNMn3c/DdjQ0z3zOF08O8wycxGpZKbJda0QQpBC4BNfTkMkBRjS779lO8/kFUro2Mr9j0xo2/GPS8mOpWyyttFScDFQ3R3oqDcVyQaYLxXQhLB+mpcJIaogu/YoGdGiZcpIPDCr6QD4tEscWrDqKYovmnY9ntaEqs5wvmr5BgSNIEpL3CwgIqbHd2qvYuRIkN9BsJmjGEQQLaKoOqWkQkiCIYXgZOKUsEM9iukEiSRhRTIgTkpbkyE+DazV6GMBQDqDrqjSJk5xQDXba18BdeTcKy7vQ2SYhoymc+P4iJsfrqDdiNBuElCWhSABxjKiZwEkZyAcCEIAi5v+KQbAV8AxRKwAMDt7QFpxgUhophlTBSYTmTA0nv76AphYgaFmG7l6GqUQ4d2EWP44xpCSoKkFVBChhxAnDNgDbFDB0ICJOGFAMFYMAsHkzIAAAR/IMAArxUSARkDLh2Xoy/uVhHhs9iziKIRUFSRyjNnYO0dQ5JHPTiGOCEICQgCIJUgGEIBABRByny6o2MRF/knLk6xVmcQ8Q07VjC/39lN+4632rfd29uPQLjHQO3vLb2WlZQY2fh3H+myFcjm3ohWXwlnYhm/dRCCQCX8I2CVICQhBbhoiyOU01RXSgw1P2bCSaWehHun6MEXp2V+2Lxw7165a93W7tblfdQNbPjjSnzpwiI1gCq9RBZm6p1II2OBk/DjySGU/CcyR0DTANgdYOHXI2OvlYRl3BABbvwxvQE1a0yZ9Ob52p1d9R3II0i7dB9YtQU1moVgpKKgc9KME1I/YckfgpRaR9BWlPNnO++MDm5jPf5Y3TewHQFbKbERLCqsDAjhgASneE6+Dktytetl138zXDy36qZwrfNmoT2tzlqd1WS/dOr30lpr76MMp2rUdv75IHX7pLfXdhnoJuXUkIlYr4M6PVe97bsunV8UNbD47yfW9N866P5/a/MTHhP/HaZ+piAdEtiKBAH64S9wE4snnvfIqGB2ghE08d5Q2GET1ULmJL0Yj2PJIzD1WZ5Y1q8fcRVuUf6d+/hrBalX2HWbki2v/jv8NvsEWcs60cXsYAAAAASUVORK5CYII=" style="width:28px;height:28px;object-fit:contain" alt="NeuroGene logo"><span style="font-family:var(--display);font-size:22px;font-weight:500;letter-spacing:0">Neuro<em style="font-style:italic;color:var(--blue)">Gene</em></span></div>
+  <div class="header-right">
+    <div class="backend-pill">
+      <div class="dot" id="backend-dot"></div>
+      <span id="backend-label">Backend offline</span>
+    </div>
+    <button class="key-btn" onclick="openKeyModal()">API Key</button>
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- ── Left panel ── -->
+  <aside class="left-panel">
+
+    <div>
+      <div class="panel-label">Data file</div>
+      <div class="drop-zone" id="drop-zone"
+           onclick="document.getElementById('file-input').click()"
+           ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
+        <div class="drop-icon">📂</div>
+        <div class="drop-title">Drop any scientific file</div>
+        <div class="drop-sub">Claude will detect the format and decide what to do</div>
+        <div class="drop-formats">
+          <span class="fmt">.nii</span><span class="fmt">.dcm</span>
+          <span class="fmt">.edf</span><span class="fmt">.h5</span>
+          <span class="fmt">.vcf</span><span class="fmt">.fastq</span>
+          <span class="fmt">.csv</span>
+        </div>
+      </div>
+      <input type="file" id="file-input" style="display:none" onchange="onFileSelect(event)">
+      <div class="file-loaded" id="file-loaded">
+        <strong id="file-name"></strong>
+        <span id="file-meta"></span>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel-label">Suggest focus (optional)</div>
+      <textarea id="user-hint" rows="3" style="resize:none;font-size:12.5px;background:var(--subtle)"
+        placeholder="e.g. 'look for disease biomarkers', 'cluster by expression patterns', or leave blank for full auto-analysis"></textarea>
+    </div>
+
+    <button class="run-btn" id="run-btn" onclick="runAnalysis()" disabled>
+      <span id="run-icon">▶</span> Analyse with AI
+    </button>
+
+    <div>
+      <div class="panel-label">Or try an example prompt</div>
+      <div class="examples">
+        <button class="example-btn" onclick="setExample('Explore this data and tell me what patterns you find')">
+          <strong>Free exploration</strong>
+          What patterns and structures exist?
+        </button>
+        <button class="example-btn" onclick="setExample('Identify the most important features and rank them by predictive power')">
+          <strong>Feature importance</strong>
+          Which variables matter most?
+        </button>
+        <button class="example-btn" onclick="setExample('Look for natural groupings or clusters in this data')">
+          <strong>Clustering</strong>
+          Find natural subgroups
+        </button>
+        <button class="example-btn" onclick="setExample('Detect any anomalies or outliers that deviate from the norm')">
+          <strong>Anomaly detection</strong>
+          Find unusual samples
+        </button>
+        <button class="example-btn" onclick="setExample('Run a full statistical summary and tell me about the data distributions')">
+          <strong>Statistical summary</strong>
+          Distributions & descriptives
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── Chat ── -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="empty-state" id="empty-state">
+        <div style="font-size:40px">🔬</div>
+        <div class="empty-title">Ready to analyse</div>
+        <div class="empty-sub">Upload any scientific file — NIfTI, DICOM, EDF, HDF5, VCF, FASTQ, CSV — and Claude will inspect it, reason about it, run the right analyses, and explain what it found.</div>
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chat-input" rows="1"
+          placeholder="Ask a follow-up question about the results…"
+          onkeydown="onKeyDown(event)" oninput="autoResize(this)"></textarea>
+      </div>
+      <button class="send-btn" id="send-btn" onclick="sendChat()" disabled>
+        <svg viewBox="0 0 16 16"><path d="M1.5 1.5l13 6.5-13 6.5V9.5l9-3-9-3V1.5z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── API Key modal ── -->
+<div class="modal-overlay" id="key-modal">
+  <div class="modal">
+    <h2>Anthropic API Key</h2>
+    <p>The AI reasoning engine requires an Anthropic API key. It's stored only in your browser session — never sent anywhere except the local backend.</p>
+    <input type="password" id="api-key-input" placeholder="sk-ant-api03-…" style="margin-bottom:4px">
+    <p style="font-size:11.5px;color:var(--ink-3);margin-bottom:0">Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--blue)">console.anthropic.com</a></p>
+    <div class="modal-btns">
+      <button class="btn btn-primary" onclick="saveKey()">Save & close</button>
+      <button class="btn btn-ghost" onclick="closeKeyModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Image zoom ── -->
+<div class="zoom-overlay" id="zoom-overlay" onclick="closeZoom()">
+  <img id="zoom-img" src="">
+</div>
+
+<script>
+const BACKEND = 'http://localhost:8000';
+let uploadedFile = null;
+let conversationHistory = [];
+let isRunning = false;
+
+// ── Backend ping ──
+async function pingBackend() {
+  try {
+    const r = await fetch(BACKEND + '/health', { signal: AbortSignal.timeout(2500) });
+    if (r.ok) {
+      const d = await r.json();
+      setBackendStatus(true, d.anthropic_key_set ? 'Ready' : 'No API key');
+      return true;
+    }
+  } catch(e) {}
+  setBackendStatus(false, 'Backend offline');
+  return false;
+}
+
+function setBackendStatus(on, label) {
+  document.getElementById('backend-dot').className = 'dot' + (on ? ' on' : '');
+  document.getElementById('backend-label').textContent = label;
+}
+
+setInterval(pingBackend, 8000);
+pingBackend();
+
+// ── API Key ──
+function openKeyModal() { document.getElementById('key-modal').classList.add('open'); }
+function closeKeyModal() { document.getElementById('key-modal').classList.remove('open'); }
+function saveKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (key) {
+    sessionStorage.setItem('anthropic_key', key);
+    // Send key to backend env via a side channel header on next request
+    closeKeyModal();
+    pingBackend();
+  }
+}
+// Restore saved key
+const savedKey = sessionStorage.getItem('anthropic_key');
+if (savedKey) document.getElementById('api-key-input').value = savedKey;
+
+// ── File handling ──
+function onDragOver(e) { e.preventDefault(); document.getElementById('drop-zone').classList.add('over'); }
+function onDragLeave() { document.getElementById('drop-zone').classList.remove('over'); }
+function onDrop(e) {
+  e.preventDefault(); onDragLeave();
+  const f = e.dataTransfer.files[0];
+  if (f) setFile(f);
+}
+function onFileSelect(e) { if (e.target.files[0]) setFile(e.target.files[0]); }
+
+function setFile(file) {
+  uploadedFile = file;
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-meta').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+  document.getElementById('file-loaded').style.display = 'block';
+  document.getElementById('run-btn').disabled = false;
+  document.getElementById('drop-zone').style.display = 'none';
+}
+
+function setExample(text) {
+  document.getElementById('user-hint').value = text;
+}
+
+// ── Auto-resize textarea ──
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+// ── Keyboard ──
+function onKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+// ── Enable send button when there's text ──
+document.getElementById('chat-input').addEventListener('input', function() {
+  document.getElementById('send-btn').disabled = !this.value.trim() || isRunning;
+});
+
+// ── Main analysis ──
+async function runAnalysis() {
+  if (!uploadedFile || isRunning) return;
+  isRunning = true;
+
+  const hint = document.getElementById('user-hint').value.trim();
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Analysing…';
+
+  document.getElementById('empty-state')?.remove();
+
+  // Show user message
+  addMessage('user', hint || 'Analyse this file and tell me what you find.');
+
+  // Show thinking
+  const thinkingId = addThinking('NeuroGene AI is inspecting your data…');
+
+  try {
+    const fd = new FormData();
+    fd.append('file', uploadedFile, uploadedFile.name);
+    fd.append('message', hint);
+    fd.append('history', JSON.stringify([]));
+
+    // Add API key header if set
+    const key = sessionStorage.getItem('anthropic_key');
+    const headers = key ? { 'X-Anthropic-Key': key } : {};
+
+    const resp = await fetch(BACKEND + '/analyze', { method: 'POST', headers, body: fd });
+
+    removeThinking(thinkingId);
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+      addMessage('agent', '✗ ' + (err.detail || 'Analysis failed.'), 'error');
+    } else {
+      const data = await resp.json();
+      conversationHistory = data.messages || [];
+      renderAgentResponse(data);
+      document.getElementById('send-btn').disabled = false;
+    }
+  } catch(e) {
+    removeThinking(thinkingId);
+    addMessage('agent', '✗ Could not reach backend. Make sure `python3 agent_backend.py` is running.', 'error');
+  }
+
+  isRunning = false;
+  btn.disabled = false;
+  btn.innerHTML = '<span>▶</span> Analyse with AI';
+}
+
+// ── Follow-up chat ──
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || isRunning) return;
+
+  isRunning = true;
+  document.getElementById('send-btn').disabled = true;
+  input.value = '';
+  input.style.height = 'auto';
+
+  addMessage('user', text);
+  const thinkingId = addThinking('NeuroGene AI is thinking…');
+
+  try {
+    const fd = new FormData();
+    fd.append('message', text);
+    fd.append('history', JSON.stringify(conversationHistory));
+    if (uploadedFile) fd.append('file', uploadedFile, uploadedFile.name);
+
+    const key = sessionStorage.getItem('anthropic_key');
+    const headers = key ? { 'X-Anthropic-Key': key } : {};
+
+    const resp = await fetch(BACKEND + '/chat', { method: 'POST', headers, body: fd });
+    removeThinking(thinkingId);
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      addMessage('agent', '✗ ' + (err.detail || 'Error'), 'error');
+    } else {
+      const data = await resp.json();
+      conversationHistory = data.messages || conversationHistory;
+      renderChatReply(data);
+    }
+  } catch(e) {
+    removeThinking(thinkingId);
+    addMessage('agent', '✗ Backend error: ' + e.message, 'error');
+  }
+
+  isRunning = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+// ── Render helpers ──
+function messagesEl() { return document.getElementById('messages'); }
+
+function scrollToBottom() {
+  const el = messagesEl();
+  el.scrollTop = el.scrollHeight;
+}
+
+function addMessage(role, text, type = '') {
+  const el = messagesEl();
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const isUser = role === 'user';
+  const color = type === 'error' ? 'var(--red)' : '';
+  div.innerHTML = `
+    <div class="msg-avatar">${isUser ? 'You' : 'AI'}</div>
+    <div class="msg-body">
+      <div class="msg-role">${isUser ? 'You' : 'NeuroGene AI'}</div>
+      <div class="msg-bubble" style="${color ? 'color:'+color : ''}">${escHtml(text)}</div>
+    </div>`;
+  el.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+let thinkingCounter = 0;
+function addThinking(label) {
+  const id = 'thinking-' + (++thinkingCounter);
+  const el = messagesEl();
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'msg agent';
+  div.innerHTML = `
+    <div class="msg-avatar">NG</div>
+    <div class="msg-body">
+      <div class="msg-role">NeuroGene AI</div>
+      <div class="thinking-indicator">
+        <div class="thinking-dots"><span></span><span></span><span></span></div>
+        <span>${label}</span>
+      </div>
+    </div>`;
+  el.appendChild(div);
+  scrollToBottom();
+  return id;
+}
+
+function removeThinking(id) {
+  document.getElementById(id)?.remove();
+}
+
+function renderAgentResponse(data) {
+  const el = messagesEl();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg agent';
+
+  const fi = data.file_info || {};
+  const nSteps = (data.steps || []).filter(s => s.type === 'code').length;
+
+  // File + analysis badge
+  const infoBanner = fi.format ? `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="padding:3px 10px;background:var(--blue-light);border:1px solid var(--blue-mid);border-radius:99px;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--blue)">${fi.format.toUpperCase()}</span>
+      <span style="font-size:12px;color:var(--ink-3)">${fi.filename} · ${fi.size_mb} MB</span>
+      <span style="font-size:12px;color:var(--ink-3)">· ${nSteps} analysis step${nSteps!==1?'s':''} run</span>
+    </div>` : '';
+
+  // Figures
+  let figsHtml = '';
+  if (data.figures && data.figures.length > 0) {
+    figsHtml = '<div class="figures-grid" style="margin-bottom:14px">';
+    data.figures.forEach(b64 => {
+      figsHtml += `<img class="fig-img" src="data:image/png;base64,${b64}" onclick="zoomImg(this)" style="max-width:340px">`;
+    });
+    figsHtml += '</div>';
+  }
+
+  // Main interpretation — the only thing shown prominently
+  const interp = data.interpretation || '';
+  const interpHtml = interp
+    ? `<div class="interp-block">${formatReply(interp)}</div>`
+    : `<div style="color:var(--ink-3);font-size:13px;font-style:italic">Analysis complete — ask a follow-up question below.</div>`;
+
+  // Collapsed technical details (optional — hidden by default)
+  let detailsHtml = '';
+  if (data.steps && data.steps.length > 0) {
+    const codeSteps = data.steps.filter(s => s.type === 'code');
+    const outputSteps = data.steps.filter(s => s.type === 'output');
+    detailsHtml = `
+      <div style="margin-top:14px">
+        <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('Show')?'Hide technical details ▲':'Show technical details ▼'"
+          style="font-size:11.5px;color:var(--ink-3);background:none;border:none;cursor:pointer;padding:0;font-family:var(--body)">
+          Show technical details ▼
+        </button>
+        <div style="display:none;margin-top:10px;display:flex;flex-direction:column;gap:6px;display:none">
+          ${codeSteps.map((s,i) => `
+            <div class="step-block">
+              <div class="step-header" onclick="toggleStep(this)">
+                <span class="step-tag code">Code ${i+1}</span>
+                <span style="font-size:12px;color:var(--ink-2)">Analysis step ${i+1}</span>
+                <span class="step-chevron">▶</span>
+              </div>
+              <div class="step-content">${escHtml(s.content)}</div>
+            </div>
+            ${outputSteps[i] ? `
+            <div class="step-block">
+              <div class="step-header" onclick="toggleStep(this)">
+                <span class="step-tag output">Output</span>
+                <span style="font-size:12px;color:var(--ink-2)">Step ${i+1} result</span>
+                <span class="step-chevron">▶</span>
+              </div>
+              <div class="step-content">${escHtml(outputSteps[i].content)}</div>
+            </div>` : ''}
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  wrap.innerHTML = `
+    <div class="msg-avatar">NG</div>
+    <div class="msg-body" style="max-width:720px;width:100%">
+      <div class="msg-role">NeuroGene AI</div>
+      <div class="msg-bubble" style="background:transparent;border:none;box-shadow:none;padding:0;max-width:100%">
+        ${infoBanner}${figsHtml}${interpHtml}${detailsHtml}
+      </div>
+    </div>`;
+
+  el.appendChild(wrap);
+  scrollToBottom();
+}
+
+function renderChatReply(data) {
+  const el = messagesEl();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg agent';
+
+  let figsHtml = '';
+  if (data.figures && data.figures.length > 0) {
+    figsHtml = '<div class="figures-grid" style="margin-top:8px">';
+    data.figures.forEach(b64 => {
+      figsHtml += `<img class="fig-img" src="data:image/png;base64,${b64}" onclick="zoomImg(this)" style="max-width:300px">`;
+    });
+    figsHtml += '</div>';
+  }
+
+  wrap.innerHTML = `
+    <div class="msg-avatar">NG</div>
+    <div class="msg-body">
+      <div class="msg-role">NeuroGene AI</div>
+      <div class="msg-bubble">${formatReply(data.reply)}${figsHtml}</div>
+    </div>`;
+  el.appendChild(wrap);
+  scrollToBottom();
+}
+
+function toggleStep(header) {
+  const content = header.nextElementSibling;
+  const chevron = header.querySelector('.step-chevron');
+  const isOpen = content.classList.toggle('open');
+  chevron.textContent = isOpen ? '▼' : '▶';
+}
+
+function zoomImg(img) {
+  document.getElementById('zoom-img').src = img.src;
+  document.getElementById('zoom-overlay').classList.add('open');
+}
+function closeZoom() { document.getElementById('zoom-overlay').classList.remove('open'); }
+
+function formatReply(text) {
+  if (!text) return '';
+  return escHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+)`/g, '<code style="font-family:var(--mono);font-size:12px;background:var(--subtle);padding:1px 5px;border-radius:3px;color:var(--blue)">$1</code>')
+    .replace(/^#{1,3} (.+)$/gm, '<strong style="font-size:14px;display:block;margin-top:10px;margin-bottom:4px;color:var(--ink)">$1</strong>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

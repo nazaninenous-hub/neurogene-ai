@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# Environment variables — never commit your API key
+.env
+.env.local
+*.env
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Data files — keep raw scientific data off GitHub
+*.nii
+*.nii.gz
+*.dcm
+*.edf
+*.bdf
+*.fif
+*.fastq
+*.fq
+*.fastq.gz
+*.fasta
+*.fa
+*.fna
+*.vcf
+*.bam
+*.h5
+*.hdf5
+*.he5
+*.h5ad
+
+# H2O temp files
+h2o_logs/
+/tmp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
