@@ -98,7 +98,6 @@ neurogene-repo/
 ├── neurogene.html          # Frontend — open this in Chrome
 ├── agent_backend.py        # Python backend — run this first
 ├── requirements.txt        # Python dependencies
-├── neurogene_logo.svg      # Logo
 ├── .gitignore
 └── README.md
 ```
