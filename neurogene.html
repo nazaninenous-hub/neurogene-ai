@@ -75,6 +75,52 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 /* ── Layout ── */
 .body { display: flex; flex: 1; overflow: hidden; }
 
+/* ── Sessions sidebar ── */
+.sessions-panel {
+  width: 220px; flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sessions-header {
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sessions-title { font-size: 11px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-3); }
+.new-session-btn {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: var(--blue); color: #fff; border: none;
+  font-size: 16px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.15s; flex-shrink: 0;
+}
+.new-session-btn:hover { opacity: 0.85; }
+.sessions-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 2px; }
+.session-item {
+  padding: 9px 10px; border-radius: var(--r);
+  cursor: pointer; transition: background 0.12s;
+  border: 1px solid transparent;
+  position: relative;
+}
+.session-item:hover { background: var(--hover); }
+.session-item.active { background: var(--blue-light); border-color: var(--blue-mid); }
+.session-item.active .session-name { color: var(--blue); font-weight: 500; }
+.session-name { font-size: 12.5px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; cursor: text; }
+.session-meta { font-size: 11px; color: var(--ink-3); }
+.session-delete {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 18px; height: 18px; border-radius: 4px;
+  background: none; border: none; color: var(--ink-3);
+  font-size: 13px; cursor: pointer; display: none;
+  align-items: center; justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.session-item:hover .session-delete { display: flex; }
+.session-delete:hover { background: var(--red-light); color: var(--red); }
+.sessions-empty { padding: 20px 14px; font-size: 12px; color: var(--ink-3); text-align: center; line-height: 1.6; }
+
 /* ── Left panel — file + config ── */
 .left-panel {
   width: 300px;
@@ -367,6 +413,17 @@ input:focus, select:focus, textarea:focus {
 
 <div class="body">
 
+  <!-- ── Sessions sidebar ── -->
+  <div class="sessions-panel">
+    <div class="sessions-header">
+      <span class="sessions-title" title="Double-click a session to rename it">Sessions</span>
+      <button class="new-session-btn" onclick="newSession()" title="New session">+</button>
+    </div>
+    <div class="sessions-list" id="sessions-list">
+      <div class="sessions-empty" id="sessions-empty">No sessions yet.<br>Upload a file to start.</div>
+    </div>
+  </div>
+
   <!-- ── Left panel ── -->
   <aside class="left-panel">
 
@@ -475,8 +532,155 @@ input:focus, select:focus, textarea:focus {
 <script>
 const BACKEND = 'http://localhost:8000';
 let uploadedFile = null;
-let conversationHistory = [];
 let isRunning = false;
+
+// ── Session management ──
+const STORAGE_KEY = 'neurogene_sessions';
+let sessions = {};       // { id: { id, name, file_name, file_size, created, messages, history, figures } }
+let activeSessionId = null;
+
+function saveSessions() {
+  try {
+    // Store sessions without file blobs (can't serialize those)
+    const toSave = {};
+    for (const [id, s] of Object.entries(sessions)) {
+      toSave[id] = { ...s, _file: undefined };
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch(e) { console.warn('Could not save sessions:', e); }
+}
+
+function loadSessions() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) sessions = JSON.parse(raw);
+  } catch(e) { sessions = {}; }
+}
+
+function newSession() {
+  const id = 'session_' + Date.now();
+  sessions[id] = {
+    id, name: 'New session',
+    file_name: null, file_size: null,
+    created: new Date().toISOString(),
+    messages: [],   // rendered HTML blobs
+    history: [],    // Claude conversation history
+    figures: [],
+  };
+  saveSessions();
+  switchSession(id);
+  // Reset file upload UI
+  uploadedFile = null;
+  document.getElementById('file-loaded').style.display = 'none';
+  document.getElementById('drop-zone').style.display = '';
+  document.getElementById('run-btn').disabled = true;
+  document.getElementById('user-hint').value = '';
+  renderSessionsList();
+}
+
+function switchSession(id) {
+  activeSessionId = id;
+  const session = sessions[id];
+  if (!session) return;
+
+  // Restore chat UI
+  const el = document.getElementById('messages');
+  el.innerHTML = '';
+
+  if (session.messages.length === 0) {
+    el.innerHTML = `<div class="empty-state" id="empty-state">
+      <div style="font-size:40px">🔬</div>
+      <div class="empty-title">Ready to analyse</div>
+      <div class="empty-sub">Upload any scientific file — NIfTI, DICOM, EDF, HDF5, VCF, FASTQ, CSV — and NeuroGene AI will inspect it, reason about it, run the right analyses, and explain what it found.</div>
+    </div>`;
+  } else {
+    // Re-render saved messages
+    session.messages.forEach(m => {
+      const div = document.createElement('div');
+      div.innerHTML = m;
+      el.appendChild(div.firstElementChild);
+    });
+  }
+
+  // Restore file info display
+  if (session.file_name) {
+    document.getElementById('drop-zone').style.display = 'none';
+    document.getElementById('file-loaded').style.display = 'block';
+    document.getElementById('file-name').textContent = session.file_name;
+    document.getElementById('file-meta').textContent = session.file_size ? (session.file_size / 1024 / 1024).toFixed(2) + ' MB' : '';
+    document.getElementById('run-btn').disabled = false;
+  } else {
+    document.getElementById('file-loaded').style.display = 'none';
+    document.getElementById('drop-zone').style.display = '';
+    document.getElementById('run-btn').disabled = true;
+  }
+
+  renderSessionsList();
+  scrollToBottom();
+
+  // Enable send if there's history
+  document.getElementById('send-btn').disabled = session.history.length === 0;
+}
+
+function deleteSession(id, e) {
+  e.stopPropagation();
+  delete sessions[id];
+  saveSessions();
+  if (activeSessionId === id) {
+    const remaining = Object.keys(sessions);
+    if (remaining.length > 0) {
+      switchSession(remaining[remaining.length - 1]);
+    } else {
+      activeSessionId = null;
+      const el = document.getElementById('messages');
+      el.innerHTML = `<div class="empty-state"><div style="font-size:40px">🔬</div><div class="empty-title">Ready to analyse</div><div class="empty-sub">Upload any scientific file to begin.</div></div>`;
+      uploadedFile = null;
+      document.getElementById('file-loaded').style.display = 'none';
+      document.getElementById('drop-zone').style.display = '';
+      document.getElementById('run-btn').disabled = true;
+    }
+  }
+  renderSessionsList();
+}
+
+function renderSessionsList() {
+  const list = document.getElementById('sessions-list');
+  const ids = Object.keys(sessions).sort((a,b) => sessions[b].created.localeCompare(sessions[a].created));
+
+  if (ids.length === 0) {
+    list.innerHTML = '<div class="sessions-empty" id="sessions-empty">No sessions yet.<br>Upload a file to start.</div>';
+    return;
+  }
+
+  list.innerHTML = ids.map(id => {
+    const s = sessions[id];
+    const date = new Date(s.created).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    const isActive = id === activeSessionId;
+    return `<div class="session-item ${isActive ? 'active' : ''}" onclick="sessionClick('${id}', event)">
+      <div class="session-name" id="sname-${id}">${escHtml(s.name)}</div>
+      <div class="session-meta">${s.file_name ? escHtml(s.file_name.split('.')[0].slice(0,18)) + ' · ' : ''}${date}</div>
+      <button class="session-delete" onclick="deleteSession('${id}', event)" title="Delete">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function updateSessionName(id, name) {
+  if (sessions[id]) {
+    sessions[id].name = name.slice(0, 40);
+    saveSessions();
+    renderSessionsList();
+  }
+}
+
+// Auto-create a session on first load
+loadSessions();
+const existingIds = Object.keys(sessions);
+if (existingIds.length > 0) {
+  renderSessionsList();
+  switchSession(existingIds[existingIds.length - 1]);
+} else {
+  newSession();
+}
 
 // ── Backend ping ──
 async function pingBackend() {
@@ -533,6 +737,18 @@ function setFile(file) {
   document.getElementById('file-loaded').style.display = 'block';
   document.getElementById('run-btn').disabled = false;
   document.getElementById('drop-zone').style.display = 'none';
+
+  // Store file info in active session
+  if (activeSessionId && sessions[activeSessionId]) {
+    sessions[activeSessionId].file_name = file.name;
+    sessions[activeSessionId].file_size = file.size;
+    // Name session after the file
+    const baseName = file.name.replace(/\.[^.]+$/, '').slice(0, 30);
+    sessions[activeSessionId].name = baseName;
+    saveSessions();
+    renderSessionsList();
+  }
+  document.getElementById('empty-state')?.remove();
 }
 
 function setExample(text) {
@@ -578,6 +794,7 @@ async function runAnalysis() {
     fd.append('file', uploadedFile, uploadedFile.name);
     fd.append('message', hint);
     fd.append('history', JSON.stringify([]));
+    fd.append('wants_code', '0');
 
     // Add API key header if set
     const key = sessionStorage.getItem('anthropic_key');
@@ -592,7 +809,11 @@ async function runAnalysis() {
       addMessage('agent', '✗ ' + (err.detail || 'Analysis failed.'), 'error');
     } else {
       const data = await resp.json();
-      conversationHistory = data.messages || [];
+      data._showCode = false;
+      if (activeSessionId && sessions[activeSessionId]) {
+        sessions[activeSessionId].history = data.messages || [];
+        saveSessions();
+      }
       renderAgentResponse(data);
       document.getElementById('send-btn').disabled = false;
     }
@@ -622,8 +843,11 @@ async function sendChat() {
 
   try {
     const fd = new FormData();
+    const currentHistory = (activeSessionId && sessions[activeSessionId]) ? sessions[activeSessionId].history : [];
+    const wantsCode = /show (me )?(the )?code|show code|see code|view code/i.test(text);
     fd.append('message', text);
-    fd.append('history', JSON.stringify(conversationHistory));
+    fd.append('history', JSON.stringify(currentHistory));
+    fd.append('wants_code', wantsCode ? '1' : '0');
     if (uploadedFile) fd.append('file', uploadedFile, uploadedFile.name);
 
     const key = sessionStorage.getItem('anthropic_key');
@@ -637,7 +861,11 @@ async function sendChat() {
       addMessage('agent', '✗ ' + (err.detail || 'Error'), 'error');
     } else {
       const data = await resp.json();
-      conversationHistory = data.messages || conversationHistory;
+      data._showCode = wantsCode;
+      if (activeSessionId && sessions[activeSessionId]) {
+        sessions[activeSessionId].history = data.messages || sessions[activeSessionId].history;
+        saveSessions();
+      }
       renderChatReply(data);
     }
   } catch(e) {
@@ -670,6 +898,10 @@ function addMessage(role, text, type = '') {
       <div class="msg-bubble" style="${color ? 'color:'+color : ''}">${escHtml(text)}</div>
     </div>`;
   el.appendChild(div);
+  if (activeSessionId && sessions[activeSessionId] && role === 'user') {
+    sessions[activeSessionId].messages.push(div.outerHTML);
+    saveSessions();
+  }
   scrollToBottom();
   return div;
 }
@@ -731,38 +963,32 @@ function renderAgentResponse(data) {
     ? `<div class="interp-block">${formatReply(interp)}</div>`
     : `<div style="color:var(--ink-3);font-size:13px;font-style:italic">Analysis complete — ask a follow-up question below.</div>`;
 
-  // Collapsed technical details (optional — hidden by default)
+  // Technical details — completely hidden unless user explicitly asks "show code"
   let detailsHtml = '';
-  if (data.steps && data.steps.length > 0) {
+  if (data.steps && data.steps.length > 0 && data._showCode) {
     const codeSteps = data.steps.filter(s => s.type === 'code');
     const outputSteps = data.steps.filter(s => s.type === 'output');
     detailsHtml = `
-      <div style="margin-top:14px">
-        <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none';this.textContent=this.textContent.includes('Show')?'Hide technical details ▲':'Show technical details ▼'"
-          style="font-size:11.5px;color:var(--ink-3);background:none;border:none;cursor:pointer;padding:0;font-family:var(--body)">
-          Show technical details ▼
-        </button>
-        <div style="display:none;margin-top:10px;display:flex;flex-direction:column;gap:6px;display:none">
-          ${codeSteps.map((s,i) => `
-            <div class="step-block">
-              <div class="step-header" onclick="toggleStep(this)">
-                <span class="step-tag code">Code ${i+1}</span>
-                <span style="font-size:12px;color:var(--ink-2)">Analysis step ${i+1}</span>
-                <span class="step-chevron">▶</span>
-              </div>
-              <div class="step-content">${escHtml(s.content)}</div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:6px">
+        ${codeSteps.map((s,i) => `
+          <div class="step-block">
+            <div class="step-header" onclick="toggleStep(this)">
+              <span class="step-tag code">Code ${i+1}</span>
+              <span style="font-size:12px;color:var(--ink-2)">Analysis step ${i+1}</span>
+              <span class="step-chevron">▶</span>
             </div>
-            ${outputSteps[i] ? `
-            <div class="step-block">
-              <div class="step-header" onclick="toggleStep(this)">
-                <span class="step-tag output">Output</span>
-                <span style="font-size:12px;color:var(--ink-2)">Step ${i+1} result</span>
-                <span class="step-chevron">▶</span>
-              </div>
-              <div class="step-content">${escHtml(outputSteps[i].content)}</div>
-            </div>` : ''}
-          `).join('')}
-        </div>
+            <div class="step-content">${escHtml(s.content)}</div>
+          </div>
+          ${outputSteps[i] ? `
+          <div class="step-block">
+            <div class="step-header" onclick="toggleStep(this)">
+              <span class="step-tag output">Output</span>
+              <span style="font-size:12px;color:var(--ink-2)">Step ${i+1} result</span>
+              <span class="step-chevron">▶</span>
+            </div>
+            <div class="step-content">${escHtml(outputSteps[i].content)}</div>
+          </div>` : ''}
+        `).join('')}
       </div>`;
   }
 
@@ -776,6 +1002,11 @@ function renderAgentResponse(data) {
     </div>`;
 
   el.appendChild(wrap);
+  // Save to session for persistence
+  if (activeSessionId && sessions[activeSessionId]) {
+    sessions[activeSessionId].messages.push(wrap.outerHTML);
+    saveSessions();
+  }
   scrollToBottom();
 }
 
@@ -800,7 +1031,61 @@ function renderChatReply(data) {
       <div class="msg-bubble">${formatReply(data.reply)}${figsHtml}</div>
     </div>`;
   el.appendChild(wrap);
+  if (activeSessionId && sessions[activeSessionId]) {
+    sessions[activeSessionId].messages.push(wrap.outerHTML);
+    saveSessions();
+  }
   scrollToBottom();
+}
+
+let sessionClickTimers = {};
+
+function sessionClick(id, e) {
+  // Ignore clicks on delete button
+  if (e.target.classList.contains('session-delete')) return;
+
+  if (sessionClickTimers[id]) {
+    // Double click detected — rename
+    clearTimeout(sessionClickTimers[id]);
+    delete sessionClickTimers[id];
+    startRename(id);
+  } else {
+    // Single click — switch after short delay
+    sessionClickTimers[id] = setTimeout(() => {
+      delete sessionClickTimers[id];
+      switchSession(id);
+    }, 220);
+  }
+}
+
+function startRename(id) {
+  const nameEl = document.getElementById('sname-' + id);
+  if (!nameEl) return;
+  const current = sessions[id]?.name || '';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = current;
+  input.style.cssText = 'width:100%;font-size:12.5px;font-family:var(--body);border:1px solid var(--blue);border-radius:4px;padding:2px 5px;outline:none;background:var(--white);color:var(--ink);box-sizing:border-box';
+
+  nameEl.replaceWith(input);
+  input.focus();
+  input.select();
+
+  let committed = false;
+  function commit() {
+    if (committed) return;
+    committed = true;
+    const newName = input.value.trim() || current;
+    updateSessionName(id, newName);
+    renderSessionsList();
+  }
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter') { ev.preventDefault(); commit(); }
+    if (ev.key === 'Escape') { committed = true; renderSessionsList(); }
+  });
 }
 
 function toggleStep(header) {

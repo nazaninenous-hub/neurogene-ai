@@ -291,7 +291,9 @@ When you want to run code, wrap it in a <code> block like:
 result = {"metrics": {}, "features": [], "summary": ""}
 </code>
 
-After seeing the execution output, provide a clear scientific interpretation.
+After seeing the execution output, provide a clear scientific interpretation in plain prose.
+CRITICAL: Your final interpretation must contain NO code, NO code blocks, NO backtick fences, NO Python syntax.
+Write as a scientist reporting findings — paragraphs only, with specific values and conclusions.
 Be specific about what you found — not generic. Reference actual values from the output.
 """
 
@@ -375,9 +377,16 @@ Result variable: {json.dumps(exec_result['result'], default=str)[:1000] if exec_
         final_interpretation = final_resp.content[0].text
         messages.append({"role": "assistant", "content": final_interpretation})
 
+    # Strip any code blocks from the final interpretation — report only
+    import re as _re
+    clean_interp = _re.sub(r'<code>.*?</code>', '', final_interpretation, flags=_re.DOTALL)
+    clean_interp = _re.sub(r'```[\s\S]*?```', '', clean_interp)  # markdown code fences
+    clean_interp = _re.sub(r'`[^`\n]{1,200}`', lambda m: m.group().replace('`',''), clean_interp)  # inline code — keep text, remove backticks
+    clean_interp = clean_interp.strip()
+
     return {
         "steps": steps,
-        "interpretation": final_interpretation,
+        "interpretation": clean_interp,
         "figures": all_figures,
         "code_outputs": all_code_outputs,
         "messages": messages,
